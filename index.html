@@ -95,9 +95,14 @@ document.getElementById("sendBtn").addEventListener("click", () => {
     .then(() => document.getElementById("newMsg").value = "")
     .catch(err => console.error(err));
 });
+
+  function OpenSite(site) {
+     window.open(site, "_self");
+   }
 </script>
 
 </body>
 </html>
+
 
 
