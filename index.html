@@ -45,6 +45,7 @@
 <button style="position: fixed; top: 10px; right: 10px;" onclick="OpenSite('https://efran457.github.io/Fun.github.io')">→</button>
 
 
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
 import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
@@ -95,10 +96,11 @@ document.getElementById("sendBtn").addEventListener("click", () => {
     .then(() => document.getElementById("newMsg").value = "")
     .catch(err => console.error(err));
 });
-
-  function OpenSite(site) {
-     window.open(site, "_self");
-   }
+</script>
+<script>
+function OpenSite(site) {
+  window.open(site, "_self");
+}
 </script>
 
 </body>
