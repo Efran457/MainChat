@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Fun</title>
+<style>
+  body {
+    background-color: #32C5FF;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+  }
+  #messagesContainer p {
+    background-color: #2599C7;
+    font-size: 18px;
+    padding: 10px;
+    border-radius: 8px;
+    color: white;
+    margin-bottom: 5px;
+  }
+  input {
+    font-size: 18px;
+    padding: 5px;
+    border-radius: 8px;
+    border: 2px solid #017FB0;
+  }
+  button {
+    font-size: 16px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: none;
+    background-color: #017FB0;
+    color: white;
+    cursor: pointer;
+    margin-left: 5px;
+  }
+</style>
+</head>
+<body>
+
+<h2>Nachrichten</h2>
+<div id="messagesContainer">Loading messages...</div>
+<input type="text" id="newMsg" placeholder="Schreibe eine neue Nachricht">
+<button id="sendBtn">Sende Nachricht</button>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
+
+// 1️⃣ Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyC1ZYypZ4-fms45zqA_UutYFmbXQ4q3psI",
+  authDomain: "imran-id123.firebaseapp.com",
+  databaseURL: "https://imran-id123-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "imran-id123",
+  storageBucket: "imran-id123.firebasestorage.app",
+  messagingSenderId: "397729453639",
+  appId: "1:397729453639:web:c1e77be6ca3288418d4362",
+  measurementId: "G-EREE36DJSL"
+};
+
+// 2️⃣ Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// 3️⃣ Reference to messages
+const messagesRef = ref(db, "messages");
+
+// 4️⃣ Display messages in real-time
+onValue(messagesRef, (snapshot) => {
+  const data = snapshot.val();
+  const container = document.getElementById("messagesContainer");
+  container.innerHTML = "";
+
+  if (data) {
+    Object.keys(data).forEach((key) => {
+      const msg = data[key].message;
+      const p = document.createElement("p");
+      p.textContent = msg;
+      container.appendChild(p);
+    });
+  } else {
+    container.textContent = "Keine Nachrichten vorhanden.";
+  }
+});
+
+// 5️⃣ Add new message
+document.getElementById("sendBtn").addEventListener("click", () => {
+  const newMessage = document.getElementById("newMsg").value.trim();
+  if (!newMessage) return;
+
+  push(messagesRef, { message: newMessage })
+    .then(() => document.getElementById("newMsg").value = "")
+    .catch(err => console.error(err));
+});
+</script>
+
+</body>
+</html>
