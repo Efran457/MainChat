@@ -4,53 +4,97 @@
 <meta charset="UTF-8">
 <title>Fun - Chat</title>
 <style>
-  body {
-    background-color: #32C5FF;
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
-  }
-  #messagesContainer p {
-    background-color: #2599C7;
-    font-size: 18px;
-    padding: 10px;
-    border-radius: 8px;
-    color: white;
-    margin-bottom: 5px;
-  }
-  input {
-    font-size: 18px;
-    padding: 5px;
-    border-radius: 8px;
-    border: 2px solid #017FB0;
-  }
-  button {
-    font-size: 16px;
-    padding: 5px 10px;
-    border-radius: 6px;
-    border: none;
-    background-color: #017FB0;
-    color: white;
-    cursor: pointer;
-    margin-left: 5px;
-  }
+body {
+  background-color: #32C5FF;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+}
+
+#messagesContainer {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+
+.message {
+  background-color: #2599C7;
+  font-size: 18px;
+  padding: 10px;
+  border-radius: 8px;
+  color: white;
+  margin-bottom: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.message button {
+  background-color: #017FB0; /* same as send button */
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 2px 8px;
+  font-size: 14px;
+  margin-left: 10px;
+}
+
+.message button:hover {
+  background-color: #1E7CA0; /* hover effect matches other buttons */
+}
+
+input {
+  font-size: 18px;
+  padding: 5px;
+  border-radius: 8px;
+  border: 2px solid #017FB0;
+}
+
+button#sendBtn {
+  font-size: 16px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: none;
+  background-color: #017FB0;
+  color: white;
+  cursor: pointer;
+  margin-left: 5px;
+}
+
+button#backBtn {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background-color: #2599C7;
+  color: white;
+  font-size: 18px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+button#backBtn:hover {
+  background-color: #1E7CA0;
+}
+
 </style>
 </head>
 <body>
 
 <h2>Nachrichten</h2>
 <div id="messagesContainer">Loading messages...</div>
+
 <input type="text" id="newMsg" placeholder="Schreibe eine neue Nachricht">
 <button id="sendBtn">Sende Nachricht</button>
-<button style="position: fixed; top: 10px; right: 10px;" onclick="OpenSite('https://efran457.github.io/Fun.github.io')">→</button>
-
-
+<button id="backBtn">→</button>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
+import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
 
-// 1️⃣ Firebase configuration
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyC1ZYypZ4-fms45zqA_UutYFmbXQ4q3psI",
   authDomain: "imran-id123.firebaseapp.com",
@@ -62,14 +106,12 @@ const firebaseConfig = {
   measurementId: "G-EREE36DJSL"
 };
 
-// 2️⃣ Initialize Firebase
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-
-// 3️⃣ Reference to messages
 const messagesRef = ref(db, "messages");
 
-// 4️⃣ Display messages in real-time
+// Display messages in real-time
 onValue(messagesRef, (snapshot) => {
   const data = snapshot.val();
   const container = document.getElementById("messagesContainer");
@@ -78,33 +120,50 @@ onValue(messagesRef, (snapshot) => {
   if (data) {
     Object.keys(data).forEach((key) => {
       const msg = data[key].message;
-      const p = document.createElement("p");
-      p.textContent = msg;
+
+      const p = document.createElement("div");
+      p.className = "message";
+
+      const textSpan = document.createElement("span");
+      textSpan.textContent = msg;
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.textContent = "x";
+      deleteBtn.addEventListener("click", () => {
+        remove(ref(db, `messages/${key}`));
+      });
+
+      p.appendChild(textSpan);
+      p.appendChild(deleteBtn);
       container.appendChild(p);
     });
+
+    // Scroll to bottom
+    container.scrollTop = container.scrollHeight;
   } else {
     container.textContent = "Keine Nachrichten vorhanden.";
   }
 });
 
-// 5️⃣ Add new message
+// Send new message
 document.getElementById("sendBtn").addEventListener("click", () => {
   const newMessage = document.getElementById("newMsg").value.trim();
   if (!newMessage) return;
-
   push(messagesRef, { message: newMessage })
     .then(() => document.getElementById("newMsg").value = "")
     .catch(err => console.error(err));
 });
-</script>
-<script>
-function OpenSite(site) {
-  window.open(site, "_self");
-}
+
+// Press Enter to send message
+document.getElementById("newMsg").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") document.getElementById("sendBtn").click();
+});
+
+// Back button
+document.getElementById("backBtn").addEventListener("click", () => {
+  window.open("https://efran457.github.io/Fun.github.io", "_self");
+});
 </script>
 
 </body>
 </html>
-
-
-
